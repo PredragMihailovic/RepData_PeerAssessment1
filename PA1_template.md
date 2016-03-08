@@ -1,15 +1,9 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-output:
-  html_document:
-    keep_md: yes
-  pdf_document: default
-  word_document: default
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 unzip("activity.zip", exdir = ".")
 activity <- read.csv("activity.csv", header = TRUE,  na.strings = "NA", )
 activity$date <- as.POSIXct(activity$date)
@@ -17,44 +11,67 @@ activity$date <- as.POSIXct(activity$date)
 
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 dailyData <- aggregate(activity$steps, by=list(activity$date), FUN=sum, na.rm = TRUE)
 names(dailyData) <- c("date", "steps")
 
-par(mfrow = c(1, 1))
 hist(dailyData$steps, xlab = "Steps ", col = "blue", breaks=10, main = "Daily steps" )
-dev.copy(png, file = ".\\figures\\plot1.png")
-dev.off()
-
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)
+
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 stepsMean <- mean(dailyData$steps, na.rm = TRUE)
 stepsMedian <- median(dailyData$steps, na.rm = TRUE)
 
 stepsMean
-stepsMedian
-
-intervalData <- aggregate(activity$steps, by=list(activity$interval), FUN=sum, na.rm = TRUE)
-names(intervalData) <- c("interval", "steps")
-par(mfrow = c(1, 1))
-with(intervalData, plot(interval, steps, type="l", col = "blue", main = "Steps by interval"))
-dev.copy(png, file = ".\\figures\\plot2.png")
-dev.off()
 ```
 
-## Imputing missing values
-```{r}
+```
+## [1] 9354.23
+```
 
+```r
+stepsMedian
+```
+
+```
+## [1] 10395
+```
+
+```r
+intervalData <- aggregate(activity$steps, by=list(activity$interval), FUN=sum, na.rm = TRUE)
+names(intervalData) <- c("interval", "steps")
+with(intervalData, plot(interval, steps, type="l", col = "blue", main = "Steps by interval"))
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
+
+## Imputing missing values
+
+```r
 totalMissingValues = sum(is.na(activity$steps))
 totalMissingValues
+```
 
+```
+## [1] 2304
+```
+
+```r
 stepsMeanByInterval <-mean(activity$steps, na.rm = TRUE)
 stepsMeanByInterval <- floor(stepsMeanByInterval)
 stepsMeanByInterval
+```
 
+```
+## [1] 37
+```
 
+```r
 activityFull <- activity
 missingData <- is.na(activityFull$steps)
 activityFull$steps[missingData] <- stepsMeanByInterval
@@ -64,21 +81,33 @@ dailyDataFull <- aggregate(activityFull$steps, by=list(activityFull$date), FUN=s
 names(dailyDataFull) <- c("date", "steps")
 
 hist(dailyDataFull$steps, xlab = "Steps ", col = "blue", breaks=20, main = "Daily steps" )
-par(mfrow = c(1, 1))
-dev.copy(png, file = ".\\figures\\plot3.png")
-dev.off()
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
+
+```r
 stepsMeanFull <- mean(dailyDataFull$steps, na.rm = TRUE)
 stepsMedianFull <- median(dailyDataFull$steps, na.rm = TRUE)
 
 stepsMeanFull
-stepsMedianFull
+```
 
+```
+## [1] 10751.74
+```
+
+```r
+stepsMedianFull
+```
+
+```
+## [1] 10656
 ```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 library(plyr)
 activityFull <- mutate(activityFull, weektype = ifelse(weekdays(activityFull$date) == "Saturday" | weekdays(activityFull$date) == "Sunday", "weekend", "weekday"))
 activityFull$weektype <- as.factor(activityFull$weektype)
@@ -95,8 +124,7 @@ names(intervalDataFullWeekend) <- c("interval", "steps")
 par(mfrow = c(2, 1), mar = c(4, 2, 1, 1), oma = c(0, 0, 0, 0))   
 with(intervalDataFullWeekday, plot(interval, steps, type="l", col = "blue", xlab = "", main = "Weekdays"))
 with(intervalDataFullWeekend, plot(interval, steps, type="l", col = "red", main = "Weekend"))
-dev.copy(png, file = ".\\figures\\plot4.png")
-dev.off()
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
 
